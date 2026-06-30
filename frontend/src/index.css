@@ -1,0 +1,30 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * { -webkit-tap-highlight-color: transparent; }
+  html { scroll-behavior: smooth; }
+  body {
+    @apply font-sans antialiased bg-slate-50 text-slate-900;
+    overscroll-behavior: none;
+  }
+  .dark body { @apply bg-slate-950 text-white; }
+}
+
+/* Leaflet dark mode */
+.dark .leaflet-tile { filter: brightness(0.7) invert(1) contrast(3) hue-rotate(200deg) saturate(0.3) brightness(0.7); }
+.dark .leaflet-container { background: #0f172a; }
+
+/* Custom scrollbar */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { @apply bg-slate-200 rounded-full; }
+.dark ::-webkit-scrollbar-thumb { @apply bg-slate-700; }
+
+/* Pink bus pulse marker */
+@keyframes pinkPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(236,72,153,0.5); }
+  50% { box-shadow: 0 0 0 12px rgba(236,72,153,0); }
+}
+.bus-marker-pink { animation: pinkPulse 2s infinite; }
