@@ -108,12 +108,7 @@ export default function LoginPage() {
           </p>
         </div>
 
-        {/* Demo credentials */}
-        <div className="mt-4 rounded-2xl bg-emerald-50 border border-emerald-100 p-4 text-xs text-emerald-800 space-y-1">
-          <p className="font-bold text-emerald-900">Demo credentials</p>
-          <p>Admin: admin@greenbus.pk / admin123</p>
-          <p>Driver: driver@greenbus.pk / driver123</p>
-        </div>
+       
       </motion.div>
     </div>
   );
