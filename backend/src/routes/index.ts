@@ -24,7 +24,7 @@ function validate(req: any, res: any, next: any) {
 
 // ─── Auth ─────────────────────────────────────────────────────────────────────
 router.post('/auth/register',
-  body('email').isEmail().normalizeEmail(),
+  body('email').isEmail().normalizeEmail().not().contains('test').not().contains('fake'),
   body('password').isLength({ min: 6 }),
   body('display_name').trim().isLength({ min: 2, max: 80 }),
   validate,
