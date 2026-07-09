@@ -3,7 +3,7 @@ import { Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-
 import { AnimatePresence, motion } from 'framer-motion';
 import {
   Map, Bus, Wallet, Share2, Shield, Star,
-  Bell, Moon, Sun, LogOut, X, AlertTriangle, Info,
+  Bell, Moon, Sun, LogOut, X, AlertTriangle, Info,User,
 } from 'lucide-react';
 import { useAuth } from './contexts/AuthContext';
 import { useAlerts } from './hooks';
@@ -19,6 +19,9 @@ import SharePage from './pages/SharePage';
 import InfoPage from './pages/InfoPage';
 import AdminPage from './pages/AdminPage';
 import DriverPage from './pages/DriverPage';
+import Profilepage from './pages/Profilepage';
+import ProfilePage from './pages/Profilepage';
+
 
 function cn(...classes: (string | boolean | undefined)[]) {
   return classes.filter(Boolean).join(' ');
@@ -122,6 +125,7 @@ function AppShell() {
   const { user, logout } = useAuth();
   const [dark, setDark] = useState(() => localStorage.getItem('theme') === 'dark');
   const location = useLocation();
+  const navigate = useNavigate(); 
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', dark);
@@ -165,11 +169,23 @@ function AppShell() {
           >
             <LogOut size={18} />
           </button>
-          <img
-            src={user.photo_url || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(user.display_name)}`}
-            alt="avatar"
-            className="h-9 w-9 rounded-full border-2 border-white dark:border-slate-800 shadow-sm object-cover"
-          />
+          <motion.button
+  whileHover={{ scale: 1.1 }}
+  whileTap={{ scale: 0.9 }}
+  onClick={() => navigate('/profile')}
+  className="h-9 w-9 rounded-full border-2 border-white dark:border-slate-800 shadow-sm object-cover overflow-hidden cursor-pointer relative group ring-2 ring-emerald-500/20 hover:ring-emerald-500 transition-all"
+>
+  <img
+    src={user.photo_url || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(user.display_name)}`}
+    alt="avatar"
+    className="h-full w-full object-cover"
+  />
+  <div className="absolute inset-0 bg-emerald-600/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
+    <User size={14} className="text-white drop-shadow-md" />
+  </div>
+</motion.button>
+    
+          
         </div>
       </header>
 
@@ -190,6 +206,7 @@ function AppShell() {
               <Route path="/wallet" element={<WalletPage />} />
               <Route path="/share"  element={<SharePage />} />
               <Route path="/info"   element={<InfoPage />} />
+              <Route path="/profile" element={<ProfilePage />} />
               <Route path="/admin"  element={user.role === UserRole.ADMIN ? <AdminPage /> : <Navigate to="/" />} />
               <Route path="/driver" element={user.role === UserRole.DRIVER ? <DriverPage /> : <Navigate to="/" />} />
               <Route path="*"       element={<Navigate to="/" />} />
