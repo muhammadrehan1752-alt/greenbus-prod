@@ -137,60 +137,60 @@ export default function ProfilePage() {
         )}
       </AnimatePresence>
 
-      {/* Header */}
-      <div className="relative bg-gradient-to-br from-emerald-600 via-emerald-700 to-teal-800 pt-12 pb-16 px-5 overflow-hidden">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/3" />
-        <div className="absolute bottom-0 left-0 w-48 h-48 bg-black/10 rounded-full translate-y-1/2 -translate-x-1/3" />
+{/* Header */}
+<div className="relative bg-gradient-to-br from-emerald-600 via-emerald-700 to-teal-800 pt-12 pb-20 px-5 overflow-hidden">
+  <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/3" />
+  <div className="absolute bottom-0 left-0 w-48 h-48 bg-black/10 rounded-full translate-y-1/2 -translate-x-1/3" />
 
-        <div className="relative z-10 flex items-center gap-4 mb-6">
-          <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => setActiveTab('avatars')} className="relative group">
-            <div className="w-24 h-24 rounded-2xl bg-white/20 backdrop-blur-sm border-2 border-white/30 flex items-center justify-center text-5xl shadow-lg">
-              {selectedAvatar}
-            </div>
-            <div className="absolute -bottom-1 -right-1 w-7 h-7 bg-orange-500 rounded-lg flex items-center justify-center text-white border-2 border-white shadow-md"><Camera size={14} /></div>
-          </motion.button>
-
-          <div className="text-white flex-1">
-            <h1 className="text-2xl font-black tracking-tight">{profile.firstName} {profile.lastName}</h1>
-            <p className="text-emerald-100 text-sm mt-0.5 font-medium">{profile.email}</p>
-            <div className="mt-2 inline-flex items-center gap-1.5 bg-white/15 backdrop-blur-sm px-3 py-1 rounded-full border border-white/20">
-              <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
-              <span className="text-xs font-bold uppercase tracking-wider">Active Passenger</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Stats */}
-        <div className="grid grid-cols-3 gap-3 relative z-10">
-          {[
-            { value: '24', label: 'Trips', icon: Bus },
-            { value: 'PKR 12K', label: 'Spent', icon: CreditCard },
-            { value: '4.9★', label: 'Rating', icon: Star },
-          ].map((stat, i) => (
-            <motion.div key={stat.label} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }}
-              className="bg-white/10 backdrop-blur-sm rounded-xl p-3 text-center border border-white/10">
-              <stat.icon size={16} className="mx-auto mb-1 text-emerald-200" />
-              <div className="text-white font-bold text-lg leading-none">{stat.value}</div>
-              <div className="text-emerald-200 text-[10px] font-bold uppercase tracking-wider mt-1">{stat.label}</div>
-            </motion.div>
-          ))}
-        </div>
+  <div className="relative z-10 flex items-center gap-4 mb-6">
+    <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => setActiveTab('avatars')} className="relative group">
+      <div className="w-24 h-24 rounded-2xl bg-white/20 backdrop-blur-sm border-2 border-white/30 flex items-center justify-center text-5xl shadow-lg">
+        {selectedAvatar}
       </div>
+      <div className="absolute -bottom-1 -right-1 w-7 h-7 bg-orange-500 rounded-lg flex items-center justify-center text-white border-2 border-white shadow-md"><Camera size={14} /></div>
+    </motion.button>
 
-      {/* Content */}
-      <div className="flex-1 -mt-8 px-5 pb-24 overflow-y-auto custom-scrollbar">
-        
-        {/* Tabs */}
-        <div className="bg-white dark:bg-slate-900 rounded-2xl p-1.5 shadow-xl shadow-slate-200/50 dark:shadow-none border border-slate-100 dark:border-slate-800 mb-5 flex gap-1">
-          {tabs.map(tab => (
-            <button key={tab.key} onClick={() => setActiveTab(tab.key as any)}
-              className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl transition-all font-bold text-xs ${
-                activeTab === tab.key ? 'bg-emerald-600 text-white shadow-md shadow-emerald-200' : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
-              }`}>
-              <tab.icon size={16} strokeWidth={activeTab === tab.key ? 2.5 : 2} />{tab.label}
-            </button>
-          ))}
-        </div>
+    <div className="text-white flex-1">
+      <h1 className="text-2xl font-black tracking-tight">{profile.firstName} {profile.lastName}</h1>
+      <p className="text-emerald-100 text-sm mt-0.5 font-medium">{profile.email}</p>
+      <div className="mt-2 inline-flex items-center gap-1.5 bg-white/15 backdrop-blur-sm px-3 py-1 rounded-full border border-white/20">
+        <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+        <span className="text-xs font-bold uppercase tracking-wider">Active Passenger</span>
+      </div>
+    </div>
+  </div>
+
+  {/* Stats */}
+  <div className="grid grid-cols-3 gap-3 relative z-10">
+    {[
+      { value: '24', label: 'Trips', icon: Bus },
+      { value: 'PKR 12K', label: 'Spent', icon: CreditCard },
+      { value: '4.9★', label: 'Rating', icon: Star },
+    ].map((stat, i) => (
+      <motion.div key={stat.label} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }}
+        className="bg-white/10 backdrop-blur-sm rounded-xl p-3 text-center border border-white/10">
+        <stat.icon size={16} className="mx-auto mb-1 text-emerald-200" />
+        <div className="text-white font-bold text-lg leading-none">{stat.value}</div>
+        <div className="text-emerald-200 text-[10px] font-bold uppercase tracking-wider mt-1">{stat.label}</div>
+      </motion.div>
+    ))}
+  </div>
+</div>
+
+{/* Content */}
+<div className="flex-1 -mt-12 px-5 pb-24 overflow-y-auto custom-scrollbar relative z-20">
+  
+  {/* Tabs */}
+  <div className="relative z-30 bg-white dark:bg-slate-900 rounded-2xl p-1.5 shadow-2xl shadow-slate-400/30 dark:shadow-black/50 border border-slate-100 dark:border-slate-800 mb-5 flex gap-1">
+    {tabs.map(tab => (
+      <button key={tab.key} onClick={() => setActiveTab(tab.key as any)}
+        className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl transition-all font-bold text-xs ${
+          activeTab === tab.key ? 'bg-emerald-600 text-white shadow-md shadow-emerald-200' : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
+        }`}>
+        <tab.icon size={16} strokeWidth={activeTab === tab.key ? 2.5 : 2} />{tab.label}
+      </button>
+    ))}
+  </div>
 
         <AnimatePresence mode="wait">
           <motion.div key={activeTab} initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }} transition={{ duration: 0.2 }}>
