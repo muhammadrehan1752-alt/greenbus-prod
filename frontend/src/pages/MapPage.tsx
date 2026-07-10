@@ -36,11 +36,11 @@ function SOSOverlay() {
   }
   return (
     <>
-      <button onClick={trigger} className="absolute bottom-24 right-4 z-[500] flex h-14 w-14 items-center justify-center rounded-full bg-rose-600 shadow-2xl shadow-rose-300 text-white active:scale-90 transition-transform">
+      <button onClick={trigger} className="absolute bottom-28 right-4 z-[500] flex h-14 w-14 items-center justify-center rounded-full bg-rose-600 shadow-2xl shadow-rose-300 text-white active:scale-90 transition-transform">
         <AlertTriangle size={24} />
       </button>
       {sent && (
-        <div className="absolute inset-x-4 bottom-44 z-[500] rounded-2xl bg-rose-600 text-white px-4 py-3 shadow-xl text-sm font-semibold text-center">
+        <div className="absolute inset-x-4 bottom-48 z-[500] rounded-2xl bg-rose-600 text-white px-4 py-3 shadow-xl text-sm font-semibold text-center">
           ✓ Emergency alert sent with your GPS location
         </div>
       )}
