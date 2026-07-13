@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap } from 'react-leaflet';
 import L from 'leaflet';
-import { AlertTriangle } from 'lucide-react';
+import { AlertTriangle, Phone, X, Shield } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useBuses, useRoutes } from '../hooks';
 import { Bus, Route, BusType, Gender } from '../types';
 import { useAuth } from '../contexts/AuthContext';
@@ -21,29 +22,177 @@ function busIcon(type: BusType, occupancy: number) {
 
 function stopIcon() {
   return L.divIcon({
-    html: `<div style="width:10px;height:10px;border-radius:50%;background:#475569;border:2px solid white;box-shadow:0 1px 4px rgba(0,0,0,0.3)"></div>`,
+    html: '<div style="width:10px;height:10px;border-radius:50%;background:#475569;border:2px solid white;box-shadow:0 1px 4px rgba(0,0,0,0.3)"></div>',
     className: '', iconSize: [10, 10], iconAnchor: [5, 5],
   });
 }
 
 function SOSOverlay() {
-  const [sent, setSent] = useState(false);
-  function trigger() {
-    navigator.geolocation.getCurrentPosition(
-      (pos) => { console.log('[SOS]', pos.coords.latitude, pos.coords.longitude); setSent(true); setTimeout(() => setSent(false), 4000); },
-      () => { setSent(true); setTimeout(() => setSent(false), 4000); }
-    );
-  }
+  const HOLD_DURATION = 5000;
+  const [holding, setHolding] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [status, setStatus] = useState<'idle' | 'holding' | 'sent' | 'cancelled'>('idle');
+  const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null);
+  const holdTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const progressTimer = useRef<ReturnType<typeof setInterval> | null>(null);
+  const startTime = useRef<number>(0);
+
+  const cancelHold = useCallback(() => {
+    if (holdTimer.current) clearTimeout(holdTimer.current);
+    if (progressTimer.current) clearInterval(progressTimer.current);
+    setHolding(false);
+    setProgress(0);
+    if (status === 'holding') {
+      setStatus('cancelled');
+      setTimeout(() => setStatus('idle'), 1500);
+    }
+  }, [status]);
+
+  const startHold = useCallback(() => {
+    if (status === 'sent') return;
+    setHolding(true);
+    setStatus('holding');
+    setProgress(0);
+    startTime.current = Date.now();
+
+    progressTimer.current = setInterval(() => {
+      const elapsed = Date.now() - startTime.current;
+      const pct = Math.min((elapsed / HOLD_DURATION) * 100, 100);
+      setProgress(pct);
+    }, 50);
+
+    holdTimer.current = setTimeout(() => {
+      if (progressTimer.current) clearInterval(progressTimer.current);
+      setProgress(100);
+      setHolding(false);
+      setStatus('sent');
+      navigator.geolocation.getCurrentPosition(
+        (pos) => setLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+        () => setLocation(null)
+      );
+    }, HOLD_DURATION);
+  }, [status]);
+
+  useEffect(() => {
+    return () => {
+      if (holdTimer.current) clearTimeout(holdTimer.current);
+      if (progressTimer.current) clearInterval(progressTimer.current);
+    };
+  }, []);
+
+  const circumference = 2 * Math.PI * 26;
+  const strokeDashoffset = circumference - (progress / 100) * circumference;
+
   return (
     <>
-      <button onClick={trigger} className="absolute bottom-28 right-4 z-[500] flex h-14 w-14 items-center justify-center rounded-full bg-rose-600 shadow-2xl shadow-rose-300 text-white active:scale-90 transition-transform">
-        <AlertTriangle size={24} />
-      </button>
-      {sent && (
-        <div className="absolute inset-x-4 bottom-48 z-[500] rounded-2xl bg-rose-600 text-white px-4 py-3 shadow-xl text-sm font-semibold text-center">
-          ✓ Emergency alert sent with your GPS location
+      <div className="absolute bottom-24 right-4 z-[500] flex flex-col items-center gap-1">
+        {(status === 'idle' || status === 'cancelled') && (
+          <p className="text-[10px] font-bold text-white bg-black/40 backdrop-blur-sm px-2 py-0.5 rounded-full">
+            {status === 'cancelled' ? 'Released' : 'Hold 5s'}
+          </p>
+        )}
+        <div
+          className="relative flex items-center justify-center cursor-pointer select-none"
+          onMouseDown={startHold}
+          onMouseUp={cancelHold}
+          onMouseLeave={cancelHold}
+          onTouchStart={(e) => { e.preventDefault(); startHold(); }}
+          onTouchEnd={cancelHold}
+          onTouchCancel={cancelHold}
+          style={{ WebkitUserSelect: 'none', userSelect: 'none' }}
+        >
+          <svg width="64" height="64" className="absolute" style={{ transform: 'rotate(-90deg)' }}>
+            <circle cx="32" cy="32" r="26" fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="4" />
+            <circle cx="32" cy="32" r="26" fill="none"
+              stroke={status === 'sent' ? '#22c55e' : '#ffffff'}
+              strokeWidth="4" strokeLinecap="round"
+              strokeDasharray={circumference}
+              strokeDashoffset={strokeDashoffset}
+              style={{ transition: holding ? 'none' : 'stroke-dashoffset 0.3s ease' }}
+            />
+          </svg>
+          <motion.div
+            animate={{ scale: holding ? 0.88 : 1 }}
+            transition={{ duration: 0.1 }}
+            className={`w-14 h-14 rounded-full flex items-center justify-center shadow-2xl ${status === 'sent' ? 'bg-green-500 shadow-green-400/60' : status === 'holding' ? 'bg-red-700 shadow-red-600/60' : 'bg-rose-600 shadow-rose-400/60'}`}
+          >
+            {status === 'sent' ? <Shield size={22} className="text-white" /> : <AlertTriangle size={22} className="text-white" />}
+          </motion.div>
         </div>
-      )}
+        <p className="text-[10px] font-bold text-white bg-black/40 backdrop-blur-sm px-2 py-0.5 rounded-full">SOS</p>
+      </div>
+
+      <AnimatePresence>
+        {status === 'holding' && (
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+            className="absolute inset-x-4 bottom-44 z-[500] rounded-2xl bg-rose-700/95 backdrop-blur-sm text-white px-5 py-4 shadow-2xl border border-rose-500/50">
+            <div className="flex items-center gap-3">
+              <div className="relative w-12 h-12 flex-shrink-0">
+                <svg viewBox="0 0 48 48" className="w-12 h-12" style={{ transform: 'rotate(-90deg)' }}>
+                  <circle cx="24" cy="24" r="20" fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="4" />
+                  <circle cx="24" cy="24" r="20" fill="none" stroke="white" strokeWidth="4" strokeLinecap="round"
+                    strokeDasharray={2 * Math.PI * 20}
+                    strokeDashoffset={2 * Math.PI * 20 - (progress / 100) * 2 * Math.PI * 20}
+                  />
+                </svg>
+                <div className="absolute inset-0 flex items-center justify-center text-sm font-black">
+                  {Math.ceil((HOLD_DURATION - (progress / 100) * HOLD_DURATION) / 1000)}
+                </div>
+              </div>
+              <div>
+                <p className="font-black text-base">Sending SOS Alert</p>
+                <p className="text-rose-200 text-xs mt-0.5">Keep holding • Release to cancel</p>
+              </div>
+            </div>
+          </motion.div>
+        )}
+
+        {status === 'cancelled' && (
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+            className="absolute inset-x-4 bottom-44 z-[500] rounded-2xl bg-slate-800/90 backdrop-blur-sm text-white px-5 py-3 shadow-xl flex items-center gap-3">
+            <X size={18} className="text-slate-400" />
+            <p className="text-sm font-semibold">SOS cancelled — you are safe</p>
+          </motion.div>
+        )}
+
+        {status === 'sent' && (
+          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }}
+            className="absolute inset-x-4 bottom-44 z-[500] rounded-2xl bg-red-600/95 backdrop-blur-sm text-white px-5 py-4 shadow-2xl border border-red-400/50">
+            <div className="flex items-start gap-3">
+              <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0">
+                <Phone size={18} className="text-white" />
+              </div>
+              <div className="flex-1">
+                <p className="font-black text-base">🚨 Emergency Alert Sent!</p>
+                <p className="text-red-100 text-xs mt-1">
+                  {location ? `GPS: ${location.lat.toFixed(5)}, ${location.lng.toFixed(5)}` : 'Getting your location…'}
+                </p>
+                <p className="text-red-200 text-xs mt-1">Driver and emergency contacts notified.</p>
+              </div>
+              <button onClick={() => setStatus('idle')} className="text-white/60 hover:text-white mt-0.5">
+                <X size={16} />
+              </button>
+            </div>
+            <div className="mt-3 bg-black/20 rounded-xl p-3 flex items-center gap-3">
+              <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
+                <Phone size={14} className="text-white" />
+              </div>
+              <div className="flex-1">
+                <p className="text-xs font-bold">Calling Police — 15</p>
+                <p className="text-red-200 text-[10px]">Emergency services alerted</p>
+              </div>
+              <span className="flex h-2 w-2 rounded-full bg-green-400 animate-pulse" />
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {status === 'holding' && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="absolute inset-0 z-[400] bg-red-900/30 pointer-events-none" />
+        )}
+      </AnimatePresence>
     </>
   );
 }
