@@ -57,6 +57,16 @@ const ROUTE_WAYPOINTS: Record<string, [number, number][]> = {
     [25.1130, 62.3300], // Gwadar West Bay
     [25.1118, 62.3332], // Gwadar Port (end)
   ],
+  R5: [
+    [30.1834, 67.0189], // Koila Phatak Chowk
+    [30.1870, 67.0150], // Jinnah Road
+    [30.1950, 67.0080], // Quetta Railway Station
+    [30.2033, 67.0100], // Cantonment / Airport Road turn
+    [30.2200, 66.9900], // Airport Road
+    [30.2500, 66.9600], // Baleli Road
+    [30.2650, 66.9450], // Near Beleli Railway Station
+    [30.2795, 66.9308], // BUITEMS Takatu Campus
+  ],
 };
 
 // ─── OSRM road-snap function ──────────────────────────────────────────────────
